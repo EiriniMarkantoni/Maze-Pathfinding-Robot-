@@ -115,12 +115,16 @@ Path length: 5
 - Object-Oriented Programming (OOP)
 - Dijkstra's Algorithm
 - Priority Queue (`heapq`)
+- Random Maze Generation (`random` module)
 
 ---
 
 ## How to Run
 
-### Option 1: Run locally
+1. Make sure you have Python installed (version 3.x)
+
+2. Run the program locally:
+
 
 ```bash
 python maze-pathfinding-simulator.py
@@ -129,7 +133,7 @@ python maze-pathfinding-simulator.py
 ---
 
 ## Constraints
--Maze size must be:
+- Maze size must be:
    - Even number
    - Greater than or equal to 4
 - Percentages must be:
@@ -148,8 +152,4 @@ python maze-pathfinding-simulator.py
 ## Author
 Eirini Markantoni
 
-Eirini Markantoni
 
-
-
-## 📥 Input Example
