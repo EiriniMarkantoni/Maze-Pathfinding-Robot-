@@ -2,6 +2,8 @@
 
 A console-based Python application that generates a random maze and finds the minimum-cost path for a robot to reach an exit using **Dijkstra’s algorithm**.
 
+![Maze Preview](screenshot.png)
+
 ---
 
 ##  Description
