@@ -4,63 +4,63 @@ import heapq
 
 class Maze:
     """
-    Η κλάση Maze αναπαριστά ολόκληρο τον λαβύρινθο
+    The Maze class represents the entire maze
 
-    Περιέχει:
-    - το μέγεθος του λαβυρίνθου
-    - τον πίνακα/grid
-    - τη θέση του ρομπότ
-    - τις εξόδους
-    - τα εμπόδια
-    - τα διόδια
-    - το μονοπάτι που θα βρεθεί
+    Contains:
+    - the size of the maze
+    - the grid/table
+    - the robot's position
+    - the exits
+    - the obstacles
+    - the toll cells
+    - the path that will be found
     """
 
     def __init__(self, size, blocked_percentage, toll_percentage):
         """
-        Constructor της κλάσης Maze
+        Constructor of the Maze class
 
-        Εκτελείται όταν δημιουργούμε ένα αντικείμενο Maze
+        Executed when we create a Maze object
 
-        Παράμετροι:
-        size: μέγεθος λαβυρίνθου n x n
-        blocked_percentage: ποσοστό κελιών που θα είναι εμπόδια
-        toll_percentage: ποσοστό κελιών που θα είναι διόδια
+        Parameters:
+        size: maze size n x n
+        blocked_percentage: percentage of cells that will be obstacles
+        toll_percentage: percentage of cells that will be toll cells
         """
 
         self.size = size
         self.blocked_percentage = blocked_percentage
         self.toll_percentage = toll_percentage
 
-        # Δημιουργούμε έναν πίνακα size x size γεμάτο με "."
-        # Το "." σημαίνει ότι το κελί είναι ελεύθερο
+        # We create a size x size grid filled with "."
+        # The "." means the cell is free
         self.grid = [["." for _ in range(size)] for _ in range(size)]
 
-        # Οι έξοδοι βρίσκονται:
-        # - πάνω αριστερά
-        # - κάτω δεξιά
+        # The exits are located:
+        # - top left
+        # - bottom right
         self.exits = [(0, 0), (size - 1, size - 1)]
 
-        # Η θέση του ρομπότ θα οριστεί αργότερα
+        # The robot's position will be set later
         self.robot = None
 
-        # Εδώ θα αποθηκευτεί το τελικό μονοπάτι
+        # The final path will be stored here
         self.path = []
 
-        # Εδώ θα αποθηκευτεί το συνολικό κόστος του μονοπατιού
+        # The total cost of the path will be stored here
         self.total_cost = 0
 
     def generate(self):
         """
-        Δημιουργεί ολόκληρο τον λαβύρινθο
+        Creates the entire maze
 
-        Η σειρά είναι σημαντική:
-        1. Βάζουμε πρώτα τις εξόδους
-        2. Βάζουμε το ρομπότ
-        3. Βάζουμε τα εμπόδια
-        4. Βάζουμε τα διόδια
+        The order is important:
+        1. First we place the exits
+        2. We place the robot
+        3. We place the obstacles
+        4. We place the toll cells
 
-        Έτσι αποφεύγουμε να μπει εμπόδιο πάνω σε έξοδο ή πάνω στο ρομπότ
+        This way we avoid placing an obstacle on top of an exit or the robot
         """
 
         self._place_exits()
@@ -70,9 +70,9 @@ class Maze:
 
     def _place_exits(self):
         """
-        Τοποθετεί τις εξόδους στον λαβύρινθο
+        Places the exits in the maze
 
-        Χρησιμοποιούμε το γράμμα E για Exit
+        We use the letter E for Exit
         """
 
         for row, col in self.exits:
@@ -80,15 +80,15 @@ class Maze:
 
     def _place_robot(self):
         """
-        Τοποθετεί το ρομπότ τυχαία σε ένα από τα 4 κεντρικά κελιά
+        Places the robot randomly in one of the 4 central cells
 
-        Επειδή το n είναι ζυγό, δεν υπάρχει ένα μόνο κεντρικό κελί
-        Υπάρχουν 4 κεντρικά κελιά
+        Because n is even, there is no single central cell
+        There are 4 central cells
         """
 
         mid = self.size // 2
 
-        # Τα 4 κεντρικά κελιά ενός ζυγού n x n πίνακα
+        # The 4 central cells of an even n x n grid
         possible_positions = [
             (mid - 1, mid - 1),
             (mid - 1, mid),
@@ -96,20 +96,20 @@ class Maze:
             (mid, mid)
         ]
 
-        # Επιλέγουμε τυχαία μία από τις 4 θέσεις
+        # We randomly choose one of the 4 positions
         self.robot = random.choice(possible_positions)
 
-        # Βάζουμε το R στο grid για να φαίνεται το ρομπότ
+        # We place R in the grid so the robot is visible
         row, col = self.robot
         self.grid[row][col] = "R"
 
     def _get_available_cells(self):
         """
-        Επιστρέφει όλα τα κελιά στα οποία επιτρέπεται να τοποθετηθούν εμπόδια
+        Returns all cells where obstacles are allowed to be placed
 
-        Δεν επιτρέπεται να βάλουμε εμπόδιο:
-        - στις εξόδους
-        - στη θέση του ρομπότ
+        We are not allowed to place an obstacle:
+        - on the exits
+        - on the robot's position
         """
 
         unavailable = set(self.exits)
@@ -126,18 +126,18 @@ class Maze:
 
     def _place_blocked_cells(self):
         """
-        Τοποθετεί τυχαία εμπόδια στον λαβύρινθο
+        Randomly places obstacles in the maze
 
-        Τα εμπόδια συμβολίζονται με X
-        Το ρομπότ δεν μπορεί να περάσει μέσα από αυτά
+        Obstacles are represented with X
+        The robot cannot pass through them
         """
 
         available = self._get_available_cells()
 
-        # Υπολογίζουμε πόσα εμπόδια πρέπει να τοποθετηθούν
+        # We calculate how many obstacles need to be placed
         total_blocked = int(len(available) * self.blocked_percentage / 100)
 
-        # Επιλέγουμε τυχαία τα κελιά που θα γίνουν εμπόδια
+        # We randomly choose the cells that will become obstacles
         blocked_cells = random.sample(available, total_blocked)
 
         for row, col in blocked_cells:
@@ -145,26 +145,26 @@ class Maze:
 
     def _place_toll_cells(self):
         """
-        Τοποθετεί τυχαία διόδια στον λαβύρινθο
+        Randomly places toll cells in the maze
 
-        Τα διόδια συμβολίζονται με T
-        Το ρομπότ μπορεί να περάσει από αυτά,
-        αλλά το κόστος μετακίνησης είναι μεγαλύτερο
+        Toll cells are represented with T
+        The robot can pass through them,
+        but the movement cost is higher
         """
 
         available = []
 
-        # Διόδια βάζουμε μόνο σε ελεύθερα κελιά "."
-        # Δεν βάζουμε διόδια πάνω σε έξοδο, ρομπότ ή εμπόδιο
+        # We place toll cells only on free "." cells
+        # We do not place toll cells on exits, the robot, or obstacles
         for row in range(self.size):
             for col in range(self.size):
                 if self.grid[row][col] == ".":
                     available.append((row, col))
 
-        # Υπολογίζουμε πόσα διόδια πρέπει να μπουν
+        # We calculate how many toll cells need to be placed
         total_tolls = int(len(available) * self.toll_percentage / 100)
 
-        # Επιλέγουμε τυχαία τα κελιά των διοδίων
+        # We randomly choose the toll cell positions
         toll_cells = random.sample(available, total_tolls)
 
         for row, col in toll_cells:
@@ -172,91 +172,91 @@ class Maze:
 
     def find_shortest_path(self):
         """
-        Βρίσκει το μονοπάτι με το μικρότερο κόστος από το ρομπότ προς μία έξοδο
+        Finds the path with the lowest cost from the robot to an exit
 
-        Χρησιμοποιούμε τον αλγόριθμο Dijkstra
+        We use the Dijkstra algorithm
 
-        Γιατί Dijkstra;
-        Επειδή δεν έχουν όλα τα κελιά ίδιο κόστος:
-        - απλό κελί: κόστος 1
-        - κελί διοδίων: κόστος 2
+        Why Dijkstra?
+        Because not all cells have the same cost:
+        - plain cell: cost 1
+        - toll cell: cost 2
 
-        Άρα δεν ψάχνουμε απλά το συντομότερο μονοπάτι σε βήματα,
-        αλλά το φθηνότερο μονοπάτι σε συνολικό κόστος
+        So we are not simply looking for the shortest path in steps,
+        but the cheapest path in total cost
         """
 
         start = self.robot
 
-        # Το distances κρατάει το μικρότερο κόστος που έχουμε βρει
-        # για να φτάσουμε σε κάθε κελί
+        # distances keeps the smallest cost we have found
+        # to reach each cell
         distances = {start: 0}
 
-        # Το previous κρατάει από ποιο κελί ήρθαμε
-        # Χρησιμοποιείται μετά για να ξαναφτιάξουμε το μονοπάτι
+        # previous keeps track of which cell we came from
+        # Used later to reconstruct the path
         previous = {}
 
         # Priority queue:
-        # κρατάει ζεύγη (κόστος, κελί)
-        # πάντα βγάζει πρώτο το κελί με το μικρότερο κόστος
+        # keeps pairs (cost, cell)
+        # always pops the cell with the smallest cost first
         priority_queue = [(0, start)]
 
-        # Το visited κρατάει τα κελιά που έχουμε ήδη εξετάσει
+        # visited keeps the cells we have already examined
         visited = set()
 
         while priority_queue:
-            # Παίρνουμε το κελί με το μικρότερο κόστος
+            # We get the cell with the smallest cost
             current_cost, current_cell = heapq.heappop(priority_queue)
 
-            # Αν το έχουμε ήδη εξετάσει, το αγνοούμε
+            # If we have already examined it, we ignore it
             if current_cell in visited:
                 continue
 
             visited.add(current_cell)
 
-            # Αν το τρέχον κελί είναι έξοδος,
-            # τότε βρήκαμε το καλύτερο μονοπάτι προς κάποια έξοδο
+            # If the current cell is an exit,
+            # then we have found the best path to some exit
             if current_cell in self.exits:
                 self.total_cost = current_cost
                 self.path = self._reconstruct_path(previous, current_cell)
                 return True
 
-            # Ελέγχουμε όλους τους γείτονες του τρέχοντος κελιού
+            # We check all neighbors of the current cell
             for neighbor in self._get_neighbors(current_cell):
                 move_cost = self._get_cell_cost(neighbor)
                 new_cost = current_cost + move_cost
 
-                # Αν δεν έχουμε ξαναδεί τον γείτονα
-                # ή βρήκαμε καλύτερο κόστος προς αυτόν,
-                # ενημερώνουμε τις δομές μας
+                # If we have not seen the neighbor before
+                # or we found a better cost to reach it,
+                # we update our data structures
                 if neighbor not in distances or new_cost < distances[neighbor]:
                     distances[neighbor] = new_cost
                     previous[neighbor] = current_cell
                     heapq.heappush(priority_queue, (new_cost, neighbor))
 
-        # Αν τελειώσει η priority queue χωρίς να βρούμε έξοδο,
-        # σημαίνει ότι δεν υπάρχει διαθέσιμο μονοπάτι
+        # If the priority queue ends without finding an exit,
+        # it means there is no available path
         return False
 
     def _get_neighbors(self, cell):
         """
-        Επιστρέφει τους έγκυρους γείτονες ενός κελιού
+        Returns the valid neighbors of a cell
 
-        Το ρομπότ μπορεί να κινηθεί μόνο:
-        - πάνω
-        - κάτω
-        - αριστερά
-        - δεξιά
+        The robot can only move:
+        - up
+        - down
+        - left
+        - right
 
-        Δεν επιτρέπεται διαγώνια κίνηση
+        Diagonal movement is not allowed
         """
 
         row, col = cell
 
         directions = [
-            (-1, 0),  # πάνω
-            (1, 0),   # κάτω
-            (0, -1),  # αριστερά
-            (0, 1)    # δεξιά
+            (-1, 0),  # up
+            (1, 0),   # down
+            (0, -1),  # left
+            (0, 1)    # right
         ]
 
         neighbors = []
@@ -265,8 +265,8 @@ class Maze:
             new_row = row + d_row
             new_col = col + d_col
 
-            # Κρατάμε μόνο τα κελιά που είναι μέσα στα όρια
-            # και δεν είναι εμπόδια
+            # We keep only the cells that are within bounds
+            # and are not obstacles
             if self._is_valid_cell(new_row, new_col):
                 neighbors.append((new_row, new_col))
 
@@ -274,11 +274,11 @@ class Maze:
 
     def _is_valid_cell(self, row, col):
         """
-        Ελέγχει αν ένα κελί είναι έγκυρο
+        Checks if a cell is valid
 
-        Ένα κελί είναι έγκυρο αν:
-        - βρίσκεται μέσα στα όρια του πίνακα
-        - δεν είναι εμπόδιο X
+        A cell is valid if:
+        - it is within the bounds of the grid
+        - it is not an obstacle X
         """
 
         if row < 0 or row >= self.size:
@@ -294,10 +294,10 @@ class Maze:
 
     def _get_cell_cost(self, cell):
         """
-        Επιστρέφει το κόστος μετακίνησης προς ένα κελί
+        Returns the movement cost to a cell
 
-        Αν το κελί είναι T, έχει κόστος 2
-        Όλα τα υπόλοιπα επιτρεπτά κελιά έχουν κόστος 1
+        If the cell is T, it has cost 2
+        All other allowed cells have cost 1
         """
 
         row, col = cell
@@ -309,11 +309,11 @@ class Maze:
 
     def _reconstruct_path(self, previous, end_cell):
         """
-        Ξαναφτιάχνει το μονοπάτι από την έξοδο προς το ρομπότ
+        Reconstructs the path from the exit back to the robot
 
-        Ο Dijkstra αποθηκεύει για κάθε κελί από πού ήρθαμε
-        Άρα ξεκινάμε από την έξοδο και πηγαίνουμε προς τα πίσω
-        μέχρι να φτάσουμε στο ρομπότ
+        Dijkstra stores for each cell where we came from
+        So we start from the exit and go backwards
+        until we reach the robot
         """
 
         path = []
@@ -323,18 +323,18 @@ class Maze:
             path.append(current)
             current = previous[current]
 
-        # Προσθέτουμε και τη θέση του ρομπότ
+        # We also add the robot's position
         path.append(self.robot)
 
-        # Επειδή το μονοπάτι φτιάχτηκε ανάποδα,
-        # το αντιστρέφουμε
+        # Because the path was built in reverse,
+        # we reverse it
         path.reverse()
 
         return path
 
     def print_maze(self):
         """
-        Εκτυπώνει τον λαβύρινθο όπως δημιουργήθηκε
+        Prints the maze as it was generated
         """
 
         for row in self.grid:
@@ -342,15 +342,15 @@ class Maze:
 
     def print_maze_with_path(self):
         """
-        Εκτυπώνει τον λαβύρινθο μαζί με το τελικό μονοπάτι
+        Prints the maze along with the final path
 
-        Το μονοπάτι εμφανίζεται με "*"
-        Δεν αλλάζουμε το R και τα E για να φαίνονται καθαρά
-        η αρχή και οι έξοδοι
+        The path is displayed with "*"
+        We do not change R and E so that the start
+        and exits are clearly visible
         """
 
-        # Δημιουργούμε αντίγραφο του grid
-        # Δεν θέλουμε να αλλάξουμε τον αρχικό λαβύρινθο
+        # We create a copy of the grid
+        # We do not want to modify the original maze
         display_grid = [row[:] for row in self.grid]
 
         for row, col in self.path:
@@ -364,12 +364,12 @@ class Maze:
 
 def read_even_size():
     """
-    Διαβάζει από τον χρήστη το μέγεθος του λαβυρίνθου
+    Reads the maze size from the user
 
-    Το n πρέπει:
-    - να είναι ακέραιος
-    - να είναι ζυγός
-    - να είναι τουλάχιστον 4
+    n must:
+    - be an integer
+    - be even
+    - be at least 4
     """
 
     while True:
@@ -387,12 +387,12 @@ def read_even_size():
 
 def read_percentage(message):
     """
-    Διαβάζει ένα ποσοστό από τον χρήστη
+    Reads a percentage from the user
 
-    Το ποσοστό πρέπει να είναι αριθμός από 0 έως 100
-    Χρησιμοποιείται για:
-    - ποσοστό εμποδίων
-    - ποσοστό διοδίων
+    The percentage must be a number from 0 to 100
+    Used for:
+    - obstacle percentage
+    - toll cell percentage
     """
 
     while True:
@@ -410,14 +410,14 @@ def read_percentage(message):
 
 def main():
     """
-    Κύρια συνάρτηση του προγράμματος
+    Main function of the program
 
-    Εδώ γίνεται η εκτέλεση του project:
-    1. Διαβάζουμε δεδομένα από τον χρήστη
-    2. Δημιουργούμε τον λαβύρινθο
-    3. Τυπώνουμε τον λαβύρινθο
-    4. Βρίσκουμε το καλύτερο μονοπάτι
-    5. Τυπώνουμε το αποτέλεσμα
+    Here the project execution takes place:
+    1. We read data from the user
+    2. We create the maze
+    3. We print the maze
+    4. We find the best path
+    5. We print the result
     """
 
     print("===================================")
@@ -430,16 +430,16 @@ def main():
     blocked_percentage = read_percentage("Enter blocked cells percentage px (%): ")
     toll_percentage = read_percentage("Enter toll cells percentage pt (%): ")
 
-    # Δημιουργούμε αντικείμενο Maze
+    # We create a Maze object
     maze = Maze(size, blocked_percentage, toll_percentage)
 
-    # Δημιουργούμε τον λαβύρινθο με βάση τις παραμέτρους που δώσαμε
+    # We generate the maze based on the parameters we provided
     maze.generate()
 
     print("\nGenerated maze:")
     maze.print_maze()
 
-    # Τρέχουμε Dijkstra για να βρούμε το μονοπάτι
+    # We run Dijkstra to find the path
     found = maze.find_shortest_path()
 
     if found:
@@ -452,7 +452,7 @@ def main():
         print("\nNo path found from robot to an exit.")
 
 
-# Αυτό σημαίνει ότι η main() θα εκτελεστεί μόνο όταν
-# τρέχουμε αυτό το αρχείο απευθείας
+# This means that main() will only be executed when
+# we run this file directly
 if __name__ == "__main__":
     main()
